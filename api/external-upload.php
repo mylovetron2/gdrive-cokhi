@@ -114,9 +114,8 @@ try {
     // Nếu chưa có session, set user hệ thống vào session tạm để FileManager hoạt động
     if (!$auth->isLoggedIn()) {
         $db = Database::getInstance();
-        $adminUser = $db->fetchOne(
-            "SELECT id FROM users_cokhi WHERE username = 'admin' AND status = 'active' LIMIT 1"
-        );
+        $db->query("SELECT id FROM users_cokhi WHERE username = 'admin' AND status = 'active' LIMIT 1");
+        $adminUser = $db->fetch();
         if (!$adminUser) {
             Helper::jsonResponse(['success' => false, 'message' => 'System user not found'], 500);
             exit;
@@ -136,10 +135,8 @@ try {
     if ($result['success'] && !empty($uploaderRef) && $uploaderRef !== 'external') {
         try {
             $db = Database::getInstance();
-            $db->execute(
-                "UPDATE activity_logs_cokhi SET description = CONCAT(description, ' [by: ', ?, ']') WHERE entity_type = 'file' AND entity_id = ? ORDER BY id DESC LIMIT 1",
-                [$uploaderRef, $result['file_id']]
-            );
+            $db->query("UPDATE activity_logs_cokhi SET description = CONCAT(description, ' [by: ', ?, ']') WHERE entity_type = 'file' AND entity_id = ? ORDER BY id DESC LIMIT 1");
+            $db->execute([$uploaderRef, $result['file_id']]);
         } catch (Exception $ignored) {}
     }
 
