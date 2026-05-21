@@ -104,7 +104,12 @@ class FileManager {
                 'success' => true,
                 'message' => 'File uploaded successfully',
                 'file_id' => $fileId,
-                'gdrive_file_id' => $uploadResult['file_id']
+                'gdrive_file_id' => $uploadResult['file_id'],
+                'web_link' => $uploadResult['web_link'] ?? null,
+                'download_link' => $uploadResult['download_link'] ?? null,
+                'file_name' => $file['name'],
+                'file_size' => $file['size'],
+                'mime_type' => $file['type']
             ];
             
         } catch (Exception $e) {

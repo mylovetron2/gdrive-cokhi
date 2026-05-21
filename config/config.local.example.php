@@ -16,5 +16,8 @@ return [
     'DB_PASS' => 'your_database_password',
     
     // Encryption Key (generate with: openssl rand -base64 32)
-    'ENCRYPTION_KEY' => 'your-random-encryption-key-here'
+    'ENCRYPTION_KEY' => 'your-random-encryption-key-here',
+
+    // API Key for external project integration (change this to a long random string)
+    'EXTERNAL_API_KEY' => 'ck-ext-your-random-api-key-here'
 ];

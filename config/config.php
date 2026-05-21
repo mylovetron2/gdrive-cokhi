@@ -41,6 +41,7 @@ define('SESSION_COOKIE_LIFETIME', 0); // Until browser closes
 define('HASH_ALGORITHM', PASSWORD_DEFAULT);
 define('HASH_COST', 10);
 define('ENCRYPTION_KEY', $localConfig['ENCRYPTION_KEY']); // Loaded from local config
+define('EXTERNAL_API_KEY', $localConfig['EXTERNAL_API_KEY'] ?? ''); // API key for external integrations
 
 // Upload Settings
 define('MAX_UPLOAD_SIZE', 104857600); // 100MB in bytes
