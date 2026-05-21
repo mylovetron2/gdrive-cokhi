@@ -269,11 +269,11 @@ class Database {
      * Handle database errors
      */
     private function handleError($message) {
+        error_log("Database Error: " . $message);
         if (DEBUG_MODE) {
-            die("Database Error: " . $message);
+            throw new RuntimeException("Database Error: " . $message);
         } else {
-            error_log("Database Error: " . $message);
-            die("An error occurred. Please try again later.");
+            throw new RuntimeException("An error occurred. Please try again later.");
         }
     }
     

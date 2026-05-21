@@ -51,8 +51,8 @@ class Auth {
             // Get user from database
             $this->db->query("
                 SELECT u.*, r.role_name, r.is_admin 
-                FROM users u
-                LEFT JOIN roles r ON u.role_id = r.id
+                FROM users_cokhi u
+                LEFT JOIN roles_cokhi r ON u.role_id = r.id
                 WHERE u.username = :username AND u.status = 'active'
             ");
             $this->db->bind(':username', $username);
@@ -74,7 +74,7 @@ class Auth {
             $this->createUserSession($user);
             
             // Update last login
-            $this->db->update('users', ['last_login' => date('Y-m-d H:i:s')], ['id' => $user['id']]);
+            $this->db->update('users_cokhi', ['last_login' => date('Y-m-d H:i:s')], ['id' => $user['id']]);
             
             // Log successful login
             $this->logActivity($user['id'], 'login', 'user', $user['id'], "User logged in: {$username}");
@@ -105,7 +105,7 @@ class Auth {
         $sessionToken = bin2hex(random_bytes(32));
         $expiresAt = date('Y-m-d H:i:s', time() + SESSION_LIFETIME);
         
-        $this->db->insert('sessions', [
+        $this->db->insert('sessions_cokhi', [
             'user_id' => $user['id'],
             'session_token' => $sessionToken,
             'ip_address' => $this->getClientIP(),
@@ -129,7 +129,7 @@ class Auth {
             
             // Delete session from database
             if (isset($_SESSION['session_token'])) {
-                $this->db->delete('sessions', ['session_token' => $_SESSION['session_token']]);
+                $this->db->delete('sessions_cokhi', ['session_token' => $_SESSION['session_token']]);
             }
         }
         
@@ -206,8 +206,8 @@ class Auth {
         if (self::$currentUser === null) {
             $this->db->query("
                 SELECT u.*, r.role_name, r.is_admin 
-                FROM users u
-                LEFT JOIN roles r ON u.role_id = r.id
+                FROM users_cokhi u
+                LEFT JOIN roles_cokhi r ON u.role_id = r.id
                 WHERE u.id = :user_id
             ");
             $this->db->bind(':user_id', $_SESSION['user_id']);
@@ -230,7 +230,7 @@ class Auth {
     public function register($username, $email, $password, $fullName, $roleId = 5) {
         try {
             // Check if username exists
-            $this->db->query("SELECT id FROM users WHERE username = :username");
+            $this->db->query("SELECT id FROM users_cokhi WHERE username = :username");
             $this->db->bind(':username', $username);
             
             if ($this->db->fetch()) {
@@ -238,7 +238,7 @@ class Auth {
             }
             
             // Check if email exists
-            $this->db->query("SELECT id FROM users WHERE email = :email");
+            $this->db->query("SELECT id FROM users_cokhi WHERE email = :email");
             $this->db->bind(':email', $email);
             
             if ($this->db->fetch()) {
@@ -249,7 +249,7 @@ class Auth {
             $hashedPassword = password_hash($password, HASH_ALGORITHM, ['cost' => HASH_COST]);
             
             // Insert user
-            $result = $this->db->insert('users', [
+            $result = $this->db->insert('users_cokhi', [
                 'username' => $username,
                 'email' => $email,
                 'password' => $hashedPassword,
@@ -279,7 +279,7 @@ class Auth {
     public function changePassword($userId, $oldPassword, $newPassword) {
         try {
             // Get current password
-            $this->db->query("SELECT password FROM users WHERE id = :user_id");
+            $this->db->query("SELECT password FROM users_cokhi WHERE id = :user_id");
             $this->db->bind(':user_id', $userId);
             $user = $this->db->fetch();
             
@@ -296,7 +296,7 @@ class Auth {
             $hashedPassword = password_hash($newPassword, HASH_ALGORITHM, ['cost' => HASH_COST]);
             
             // Update password
-            $result = $this->db->update('users', ['password' => $hashedPassword], ['id' => $userId]);
+            $result = $this->db->update('users_cokhi', ['password' => $hashedPassword], ['id' => $userId]);
             
             if ($result) {
                 $this->logActivity($userId, 'password_changed', 'user', $userId, "Password changed");
@@ -329,7 +329,7 @@ class Auth {
      */
     private function logActivity($userId, $action, $entityType, $entityId, $description) {
         try {
-            $this->db->insert('activity_logs', [
+            $this->db->insert('activity_logs_cokhi', [
                 'user_id' => $userId,
                 'action' => $action,
                 'entity_type' => $entityType,

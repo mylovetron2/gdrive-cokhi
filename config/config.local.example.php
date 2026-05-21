@@ -1,6 +1,6 @@
 <?php
 /**
- * Local Configuration Template
+ * Local Configuration Template - Cơ Khí
  * Copy this file to config.local.php and update with your credentials
  */
 

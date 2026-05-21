@@ -56,7 +56,7 @@ try {
     $db = Database::getInstance();
     
     // Check if user exists
-    $db->query("SELECT username FROM users WHERE id = :id");
+    $db->query("SELECT username FROM users_cokhi WHERE id = :id");
     $db->bind(':id', $userId);
     $user = $db->fetch();
     
@@ -66,7 +66,7 @@ try {
     }
     
     // Delete user
-    $result = $db->delete('users', ['id' => $userId]);
+    $result = $db->delete('users_cokhi', ['id' => $userId]);
     
     if ($result) {
         Helper::jsonResponse(['success' => true, 'message' => 'User deleted successfully'], 200);

@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Tên vai trò không được để trống";
         } else {
             try {
-                $result = $db->insert('roles', [
+                $result = $db->insert('roles_cokhi', [
                     'role_name' => $roleName,
                     'description' => $description,
                     'is_admin' => $isAdmin
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Tên vai trò không được để trống";
         } else {
             try {
-                $result = $db->update('roles', [
+                $result = $db->update('roles_cokhi', [
                     'role_name' => $roleName,
                     'description' => $description,
                     'is_admin' => $isAdmin
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "Không thể xóa vai trò Super Admin";
         } else {
             // Check if any users have this role
-            $db->query("SELECT COUNT(*) as count FROM users WHERE role_id = :role_id");
+            $db->query("SELECT COUNT(*) as count FROM users_cokhi WHERE role_id = :role_id");
             $db->bind(':role_id', $roleId);
             $userCount = $db->fetch();
             
@@ -94,10 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     // Delete role permissions first
-                    $db->delete('role_permissions', ['role_id' => $roleId]);
+                    $db->delete('role_permissions_cokhi', ['role_id' => $roleId]);
                     
                     // Delete role
-                    $result = $db->delete('roles', ['id' => $roleId]);
+                    $result = $db->delete('roles_cokhi', ['id' => $roleId]);
                     
                     if ($result) {
                         $success = "Xóa vai trò thành công!";
@@ -115,15 +115,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get all roles with statistics
 $db->query("
     SELECT r.*,
-           (SELECT COUNT(*) FROM users WHERE role_id = r.id) as user_count,
-           (SELECT COUNT(*) FROM role_permissions WHERE role_id = r.id) as permission_count
-    FROM roles r
+           (SELECT COUNT(*) FROM users_cokhi WHERE role_id = r.id) as user_count,
+           (SELECT COUNT(*) FROM role_permissions_cokhi WHERE role_id = r.id) as permission_count
+    FROM roles_cokhi r
     ORDER BY r.id ASC
 ");
 $roles = $db->fetchAll();
 
 // Get total permissions count
-$db->query("SELECT COUNT(*) as total FROM permissions");
+$db->query("SELECT COUNT(*) as total FROM permissions_cokhi");
 $totalPerms = $db->fetch();
 
 $title = 'Quản lý vai trò';

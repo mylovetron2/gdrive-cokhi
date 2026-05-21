@@ -27,8 +27,8 @@ if ($userId <= 0) {
 // Get user info
 $db->query("
     SELECT u.*, r.role_name, r.is_admin
-    FROM users u
-    LEFT JOIN roles r ON u.role_id = r.id
+    FROM users_cokhi u
+    LEFT JOIN roles_cokhi r ON u.role_id = r.id
     WHERE u.id = :id
 ");
 $db->bind(':id', $userId);
@@ -40,13 +40,13 @@ if (!$user) {
 }
 
 // Get all permissions
-$db->query("SELECT * FROM permissions ORDER BY permission_name");
+$db->query("SELECT * FROM permissions_cokhi ORDER BY permission_name");
 $allPermissions = $db->fetchAll();
 
 // Get user's current permissions
 $db->query("
     SELECT permission_id 
-    FROM user_permissions 
+    FROM user_permissions_cokhi 
     WHERE user_id = :user_id
 ");
 $db->bind(':user_id', $userId);
@@ -59,11 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_permissions'])
     
     try {
         // Delete all existing permissions
-        $db->delete('user_permissions', ['user_id' => $userId]);
+        $db->delete('user_permissions_cokhi', ['user_id' => $userId]);
         
         // Insert new permissions
         foreach ($selectedPermissions as $permissionId) {
-            $db->insert('user_permissions', [
+            $db->insert('user_permissions_cokhi', [
                 'user_id' => $userId,
                 'permission_id' => (int)$permissionId,
                 'granted_by' => $_SESSION['user_id']
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_permissions'])
         // Refresh user permissions
         $db->query("
             SELECT permission_id 
-            FROM user_permissions 
+            FROM user_permissions_cokhi 
             WHERE user_id = :user_id
         ");
         $db->bind(':user_id', $userId);

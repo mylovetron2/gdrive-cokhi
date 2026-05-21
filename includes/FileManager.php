@@ -75,7 +75,7 @@ class FileManager {
             );
             
             if (!$uploadResult['success']) {
-                return $uploadResult;
+                return ['success' => false, 'message' => $uploadResult['error'] ?? $uploadResult['message'] ?? 'Google Drive upload failed'];
             }
             
             // Save file metadata to database
@@ -93,7 +93,7 @@ class FileManager {
                 'description' => $description
             ];
             
-            $this->db->insert('files', $fileData);
+            $this->db->insert('files_cokhi', $fileData);
             $fileId = $this->db->lastInsertId();
             
             // Log activity
@@ -144,7 +144,7 @@ class FileManager {
             }
             
             // Update download count
-            $this->db->query("UPDATE files SET download_count = download_count + 1 WHERE id = :id");
+            $this->db->query("UPDATE files_cokhi SET download_count = download_count + 1 WHERE id = :id");
             $this->db->bind(':id', $fileId);
             $this->db->execute();
             
@@ -197,7 +197,7 @@ class FileManager {
             }
             
             // Delete from database
-            $this->db->delete('files', ['id' => $fileId]);
+            $this->db->delete('files_cokhi', ['id' => $fileId]);
             
             // Log activity
             $this->logActivity($userId, 'file_deleted', 'file', $fileId, 
@@ -219,9 +219,9 @@ class FileManager {
             $this->db->query("
                 SELECT f.*, u.username as uploader_username, u.full_name as uploader_name,
                        fo.folder_name
-                FROM files f
-                LEFT JOIN users u ON f.uploaded_by = u.id
-                LEFT JOIN folders fo ON f.folder_id = fo.id
+                FROM files_cokhi f
+                LEFT JOIN users_cokhi u ON f.uploaded_by = u.id
+                LEFT JOIN folders_cokhi fo ON f.folder_id = fo.id
                 WHERE f.id = :id
             ");
             $this->db->bind(':id', $fileId);
@@ -241,9 +241,9 @@ class FileManager {
             $sql = "
                 SELECT f.*, u.username as uploader_username, u.full_name as uploader_name,
                        fo.folder_name
-                FROM files f
-                LEFT JOIN users u ON f.uploaded_by = u.id
-                LEFT JOIN folders fo ON f.folder_id = fo.id
+                FROM files_cokhi f
+                LEFT JOIN users_cokhi u ON f.uploaded_by = u.id
+                LEFT JOIN folders_cokhi fo ON f.folder_id = fo.id
             ";
             
             if ($folderId !== null) {
@@ -278,9 +278,9 @@ class FileManager {
             $this->db->query("
                 SELECT f.*, u.username as uploader_username, u.full_name as uploader_name,
                        fo.folder_name
-                FROM files f
-                LEFT JOIN users u ON f.uploaded_by = u.id
-                LEFT JOIN folders fo ON f.folder_id = fo.id
+                FROM files_cokhi f
+                LEFT JOIN users_cokhi u ON f.uploaded_by = u.id
+                LEFT JOIN folders_cokhi fo ON f.folder_id = fo.id
                 WHERE f.file_name LIKE :keyword1
                    OR f.original_name LIKE :keyword2
                    OR f.description LIKE :keyword3
@@ -307,7 +307,7 @@ class FileManager {
      */
     public function getFileCount($folderId = null) {
         try {
-            $sql = "SELECT COUNT(*) as count FROM files";
+            $sql = "SELECT COUNT(*) as count FROM files_cokhi";
             
             if ($folderId !== null) {
                 $sql .= " WHERE folder_id = :folder_id";
@@ -344,7 +344,7 @@ class FileManager {
                 return ['success' => false, 'message' => 'You do not have permission to edit files'];
             }
             
-            $result = $this->db->update('files', $data, ['id' => $fileId]);
+            $result = $this->db->update('files_cokhi', $data, ['id' => $fileId]);
             
             if ($result) {
                 $this->logActivity($userId, 'file_updated', 'file', $fileId, 
@@ -366,7 +366,7 @@ class FileManager {
      */
     private function getFolder($folderId) {
         try {
-            $this->db->query("SELECT * FROM folders WHERE id = :id");
+            $this->db->query("SELECT * FROM folders_cokhi WHERE id = :id");
             $this->db->bind(':id', $folderId);
             return $this->db->fetch();
             
@@ -396,7 +396,7 @@ class FileManager {
      */
     private function logActivity($userId, $action, $entityType, $entityId, $description) {
         try {
-            $this->db->insert('activity_logs', [
+            $this->db->insert('activity_logs_cokhi', [
                 'user_id' => $userId,
                 'action' => $action,
                 'entity_type' => $entityType,

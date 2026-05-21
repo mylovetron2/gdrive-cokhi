@@ -48,7 +48,7 @@ if (!empty($filterDate)) {
 $whereSQL = count($whereConditions) > 0 ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
 
 // Get total count
-$db->query("SELECT COUNT(*) as total FROM activity_logs al $whereSQL");
+$db->query("SELECT COUNT(*) as total FROM activity_logs_cokhi al $whereSQL");
 foreach ($params as $key => $value) {
     $db->bind($key, $value);
 }
@@ -61,13 +61,13 @@ $db->query("
     SELECT al.*, 
            u.username, u.full_name,
            CASE 
-               WHEN al.entity_type = 'file' THEN (SELECT original_name FROM files WHERE id = al.entity_id)
-               WHEN al.entity_type = 'folder' THEN (SELECT folder_name FROM folders WHERE id = al.entity_id)
-               WHEN al.entity_type = 'user' THEN (SELECT username FROM users WHERE id = al.entity_id)
+               WHEN al.entity_type = 'file' THEN (SELECT original_name FROM files_cokhi WHERE id = al.entity_id)
+               WHEN al.entity_type = 'folder' THEN (SELECT folder_name FROM folders_cokhi WHERE id = al.entity_id)
+               WHEN al.entity_type = 'user' THEN (SELECT username FROM users_cokhi WHERE id = al.entity_id)
                ELSE NULL
            END as entity_name
-    FROM activity_logs al
-    LEFT JOIN users u ON al.user_id = u.id
+    FROM activity_logs_cokhi al
+    LEFT JOIN users_cokhi u ON al.user_id = u.id
     $whereSQL
     ORDER BY al.created_at DESC
     LIMIT $itemsPerPage OFFSET $offset
@@ -78,11 +78,11 @@ foreach ($params as $key => $value) {
 $logs = $db->fetchAll();
 
 // Get all users for filter dropdown
-$db->query("SELECT id, username, full_name FROM users ORDER BY username");
+$db->query("SELECT id, username, full_name FROM users_cokhi ORDER BY username");
 $users = $db->fetchAll();
 
 // Get unique actions for filter
-$db->query("SELECT DISTINCT action FROM activity_logs ORDER BY action");
+$db->query("SELECT DISTINCT action FROM activity_logs_cokhi ORDER BY action");
 $actions = $db->fetchAll();
 
 $title = 'Lịch sử hoạt động';

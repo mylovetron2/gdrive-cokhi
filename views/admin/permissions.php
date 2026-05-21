@@ -20,7 +20,7 @@ $db = Database::getInstance();
 $selectedRoleId = isset($_GET['role_id']) ? (int)$_GET['role_id'] : 0;
 
 // Get all roles
-$db->query("SELECT * FROM roles ORDER BY role_name");
+$db->query("SELECT * FROM roles_cokhi ORDER BY role_name");
 $roles = $db->fetchAll();
 
 // If no role selected, use first role
@@ -31,13 +31,13 @@ if ($selectedRoleId <= 0 && !empty($roles)) {
 // Get selected role info
 $selectedRole = null;
 if ($selectedRoleId > 0) {
-    $db->query("SELECT * FROM roles WHERE id = :id");
+    $db->query("SELECT * FROM roles_cokhi WHERE id = :id");
     $db->bind(':id', $selectedRoleId);
     $selectedRole = $db->fetch();
 }
 
 // Get all permissions
-$db->query("SELECT * FROM permissions ORDER BY permission_name");
+$db->query("SELECT * FROM permissions_cokhi ORDER BY permission_name");
 $allPermissions = $db->fetchAll();
 
 // Get role's current permissions
@@ -45,7 +45,7 @@ $rolePermissions = [];
 if ($selectedRoleId > 0) {
     $db->query("
         SELECT permission_id 
-        FROM role_permissions 
+        FROM role_permissions_cokhi 
         WHERE role_id = :role_id
     ");
     $db->bind(':role_id', $selectedRoleId);
@@ -56,16 +56,16 @@ if ($selectedRoleId > 0) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_permissions'])) {
     $roleId = (int)($_POST['role_id'] ?? 0);
-    $selectedPermissions = isset($_POST['permissions']) ? $_POST['permissions'] : [];
+    $selectedPermissions = isset($_POST['permissions_cokhi']) ? $_POST['permissions_cokhi'] : [];
     
     if ($roleId > 0) {
         try {
             // Delete all existing permissions for this role
-            $db->delete('role_permissions', ['role_id' => $roleId]);
+            $db->delete('role_permissions_cokhi', ['role_id' => $roleId]);
             
             // Insert new permissions
             foreach ($selectedPermissions as $permissionId) {
-                $db->insert('role_permissions', [
+                $db->insert('role_permissions_cokhi', [
                     'role_id' => $roleId,
                     'permission_id' => (int)$permissionId
                 ]);
@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_permissions'])
             // Refresh role permissions
             $db->query("
                 SELECT permission_id 
-                FROM role_permissions 
+                FROM role_permissions_cokhi 
                 WHERE role_id = :role_id
             ");
             $db->bind(':role_id', $roleId);
@@ -283,7 +283,7 @@ include APP_ROOT . '/views/includes/header.php';
                             <?php foreach ($roles as $role): ?>
                                 <?php
                                 // Get permission count for this role
-                                $db->query("SELECT COUNT(*) as count FROM role_permissions WHERE role_id = :role_id");
+                                $db->query("SELECT COUNT(*) as count FROM role_permissions_cokhi WHERE role_id = :role_id");
                                 $db->bind(':role_id', $role['id']);
                                 $permCount = $db->fetch();
                                 ?>

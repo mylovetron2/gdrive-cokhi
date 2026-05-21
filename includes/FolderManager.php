@@ -51,7 +51,7 @@ class FolderManager {
             $createResult = $this->gdrive->createFolder($folderName, $gdriveParentId);
             
             if (!$createResult['success']) {
-                return $createResult;
+                return ['success' => false, 'message' => $createResult['error'] ?? $createResult['message'] ?? 'Google Drive folder creation failed'];
             }
             
             // Save to database
@@ -62,7 +62,7 @@ class FolderManager {
                 'created_by' => $userId
             ];
             
-            $this->db->insert('folders', $folderData);
+            $this->db->insert('folders_cokhi', $folderData);
             $folderId = $this->db->lastInsertId();
             
             // Log activity
@@ -123,7 +123,7 @@ class FolderManager {
             }
             
             // Delete from database
-            $this->db->delete('folders', ['id' => $folderId]);
+            $this->db->delete('folders_cokhi', ['id' => $folderId]);
             
             // Log activity
             $this->logActivity($userId, 'folder_deleted', 'folder', $folderId,
@@ -145,9 +145,9 @@ class FolderManager {
             $this->db->query("
                 SELECT f.*, u.username as creator_username, u.full_name as creator_name,
                        p.folder_name as parent_name
-                FROM folders f
-                LEFT JOIN users u ON f.created_by = u.id
-                LEFT JOIN folders p ON f.parent_id = p.id
+                FROM folders_cokhi f
+                LEFT JOIN users_cokhi u ON f.created_by = u.id
+                LEFT JOIN folders_cokhi p ON f.parent_id = p.id
                 WHERE f.id = :id
             ");
             $this->db->bind(':id', $folderId);
@@ -169,11 +169,11 @@ class FolderManager {
                        u.username as creator_username, 
                        u.full_name as creator_name,
                        p.folder_name as parent_name,
-                       COALESCE((SELECT COUNT(*) FROM files WHERE folder_id = f.id), 0) as file_count,
-                       COALESCE((SELECT COUNT(*) FROM folders WHERE parent_id = f.id), 0) as subfolder_count
-                FROM folders f
-                LEFT JOIN users u ON f.created_by = u.id
-                LEFT JOIN folders p ON f.parent_id = p.id
+                       COALESCE((SELECT COUNT(*) FROM files_cokhi WHERE folder_id = f.id), 0) as file_count,
+                       COALESCE((SELECT COUNT(*) FROM folders_cokhi WHERE parent_id = f.id), 0) as subfolder_count
+                FROM folders_cokhi f
+                LEFT JOIN users_cokhi u ON f.created_by = u.id
+                LEFT JOIN folders_cokhi p ON f.parent_id = p.id
             ";
             
             if ($parentId === null) {
@@ -227,7 +227,7 @@ class FolderManager {
      */
     private function getFolderFileCount($folderId) {
         try {
-            $this->db->query("SELECT COUNT(*) as count FROM files WHERE folder_id = :folder_id");
+            $this->db->query("SELECT COUNT(*) as count FROM files_cokhi WHERE folder_id = :folder_id");
             $this->db->bind(':folder_id', $folderId);
             $result = $this->db->fetch();
             return $result['count'] ?? 0;
@@ -243,7 +243,7 @@ class FolderManager {
      */
     private function getSubfolderCount($folderId) {
         try {
-            $this->db->query("SELECT COUNT(*) as count FROM folders WHERE parent_id = :parent_id");
+            $this->db->query("SELECT COUNT(*) as count FROM folders_cokhi WHERE parent_id = :parent_id");
             $this->db->bind(':parent_id', $folderId);
             $result = $this->db->fetch();
             return $result['count'] ?? 0;
@@ -270,7 +270,7 @@ class FolderManager {
                 return ['success' => false, 'message' => 'Bạn không có quyền quản lý thư mục'];
             }
             
-            $result = $this->db->update('folders', $data, ['id' => $folderId]);
+            $result = $this->db->update('folders_cokhi', $data, ['id' => $folderId]);
             
             if ($result) {
                 $this->logActivity($userId, 'folder_updated', 'folder', $folderId,
@@ -308,7 +308,7 @@ class FolderManager {
                 return ['success' => false, 'message' => 'Cannot move folder into its own subfolder'];
             }
             
-            $result = $this->db->update('folders', ['parent_id' => $newParentId], ['id' => $folderId]);
+            $result = $this->db->update('folders_cokhi', ['parent_id' => $newParentId], ['id' => $folderId]);
             
             if ($result) {
                 $this->logActivity($userId, 'folder_moved', 'folder', $folderId,
@@ -385,7 +385,7 @@ class FolderManager {
      */
     private function logActivity($userId, $action, $entityType, $entityId, $description) {
         try {
-            $this->db->insert('activity_logs', [
+            $this->db->insert('activity_logs_cokhi', [
                 'user_id' => $userId,
                 'action' => $action,
                 'entity_type' => $entityType,

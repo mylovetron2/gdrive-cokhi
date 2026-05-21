@@ -11,6 +11,7 @@ composer.lock
 # Debug files (don't commit)
 debug-*.php
 test-*.php
+reset-password-*.php
 
 # Logs
 /logs/*.log

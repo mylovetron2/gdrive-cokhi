@@ -1,7 +1,7 @@
 <?php
 /**
  * Main Configuration File
- * Quản lý file XSCTBDVL
+ * Quản lý file Cơ Khí
  */
 
 // Prevent direct access
@@ -17,9 +17,9 @@ if (!file_exists($localConfigFile)) {
 $localConfig = require $localConfigFile;
 
 // Application Settings
-define('APP_NAME', 'Quản lý file XSCTBDVL');
+define('APP_NAME', 'Quản lý file Cơ Khí');
 define('APP_VERSION', '1.0.0');
-define('APP_URL', 'https://diavatly.cloud/gdrive-manager'); // Production domain with HTTPS
+define('APP_URL', 'https://diavatly.cloud/gdrive-cokhi'); // Production domain with HTTPS
 
 // Environment
 define('ENVIRONMENT', 'development'); // development or production
@@ -33,7 +33,7 @@ define('DB_PASS', $localConfig['DB_PASS']);
 define('DB_CHARSET', 'utf8mb4');
 
 // Session Configuration
-define('SESSION_NAME', 'GDRIVE_SESSION');
+define('SESSION_NAME', 'GDRIVE_CK_SESSION');
 define('SESSION_LIFETIME', 86400); // 24 hours in seconds
 define('SESSION_COOKIE_LIFETIME', 0); // Until browser closes
 
@@ -57,7 +57,7 @@ define('GDRIVE_ACCESS_TYPE', 'offline');
 define('GDRIVE_ROOT_FOLDER_ID', ''); // Leave empty to use root or specify folder ID
 
 // Google Account (for reference)
-define('GOOGLE_ACCOUNT_EMAIL', 'mystore2018myapp.gmail.com');
+define('GOOGLE_ACCOUNT_EMAIL', ''); // Cập nhật email tài khoản Google Drive Cơ Khí
 // Note: Password should not be stored here. Use OAuth2 authentication instead.
 
 // Pagination
@@ -98,6 +98,16 @@ if (ENVIRONMENT === 'development') {
     ini_set('log_errors', 1);
     ini_set('error_log', LOG_PATH . '/php_errors.log');
 }
+
+// Global exception handler for uncaught database/runtime exceptions
+set_exception_handler(function($e) {
+    if (defined('DEBUG_MODE') && DEBUG_MODE) {
+        die("Database Error: " . $e->getMessage());
+    } else {
+        error_log("Uncaught exception: " . $e->getMessage());
+        die("An error occurred. Please try again later.");
+    }
+});
 
 // Set timezone
 date_default_timezone_set(TIMEZONE);

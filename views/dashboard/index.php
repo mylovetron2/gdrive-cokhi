@@ -23,13 +23,13 @@ $db = Database::getInstance();
 // Get statistics
 $totalFiles = $fileManager->getFileCount();
 
-$db->query("SELECT COUNT(*) as count FROM folders");
+$db->query("SELECT COUNT(*) as count FROM folders_cokhi");
 $totalFolders = $db->fetchColumn();
 
-$db->query("SELECT COUNT(*) as count FROM users WHERE status = 'active'");
+$db->query("SELECT COUNT(*) as count FROM users_cokhi WHERE status = 'active'");
 $totalUsers = $db->fetchColumn();
 
-$db->query("SELECT SUM(file_size) as total FROM files");
+$db->query("SELECT SUM(file_size) as total FROM files_cokhi");
 $totalSize = $db->fetchColumn() ?? 0;
 
 // Get recent files
@@ -39,8 +39,8 @@ $recentFiles = $fileManager->getAllFiles(null, 10, 0);
 $userId = $auth->getCurrentUserId();
 $db->query("
     SELECT al.*, u.username, u.full_name 
-    FROM activity_logs al
-    LEFT JOIN users u ON al.user_id = u.id
+    FROM activity_logs_cokhi al
+    LEFT JOIN users_cokhi u ON al.user_id = u.id
     ORDER BY al.created_at DESC
     LIMIT 15
 ");

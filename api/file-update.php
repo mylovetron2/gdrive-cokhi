@@ -22,7 +22,7 @@ if (!$auth->isLoggedIn()) {
 $permission = new Permission();
 
 if (!$permission->can('file.upload')) {
-    Helper::jsonResponse(['success' => false, 'message' => 'You do not have permission to update files'], 403);
+    Helper::jsonResponse(['success' => false, 'message' => 'You do not have permission to update files_cokhi'], 403);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -38,7 +38,7 @@ try {
     $fileId = (int)$_POST['file_id'];
     
     // Check if file exists
-    $db->query("SELECT id, uploaded_by FROM files WHERE id = :id");
+    $db->query("SELECT id, uploaded_by FROM files_cokhi WHERE id = :id");
     $db->bind(':id', $fileId);
     $file = $db->fetch();
     
@@ -57,14 +57,14 @@ try {
     // Update description
     $description = $_POST['description'] ?? '';
     
-    $db->query("UPDATE files SET description = :description, updated_at = NOW() WHERE id = :id");
+    $db->query("UPDATE files_cokhi SET description = :description, updated_at = NOW() WHERE id = :id");
     $db->bind(':description', $description);
     $db->bind(':id', $fileId);
     
     if ($db->execute()) {
         // Log activity
         $db->query("
-            INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description, ip_address, user_agent) 
+            INSERT INTO activity_logs_cokhi (user_id, action, entity_type, entity_id, description, ip_address, user_agent) 
             VALUES (:user_id, 'file_updated', 'file', :file_id, :description, :ip, :user_agent)
         ");
         $db->bind(':user_id', $userId);

@@ -35,7 +35,7 @@ try {
     $fileId = (int)$_GET['id'];
     
     // Get file info
-    $db->query("SELECT * FROM files WHERE id = :id");
+    $db->query("SELECT * FROM files_cokhi WHERE id = :id");
     $db->bind(':id', $fileId);
     $file = $db->fetch();
     
@@ -59,7 +59,7 @@ try {
     if ($links['success']) {
         // Update database with the links
         $db->query("
-            UPDATE files 
+            UPDATE files_cokhi 
             SET gdrive_web_link = :web_link, 
                 gdrive_download_link = :download_link,
                 updated_at = NOW()

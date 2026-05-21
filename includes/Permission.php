@@ -56,10 +56,10 @@ class Permission {
             // Get permissions from role
             $this->db->query("
                 SELECT DISTINCT p.permission_key
-                FROM users u
-                INNER JOIN roles r ON u.role_id = r.id
-                INNER JOIN role_permissions rp ON r.id = rp.role_id
-                INNER JOIN permissions p ON rp.permission_id = p.id
+                FROM users_cokhi u
+                INNER JOIN roles_cokhi r ON u.role_id = r.id
+                INNER JOIN role_permissions_cokhi rp ON r.id = rp.role_id
+                INNER JOIN permissions_cokhi p ON rp.permission_id = p.id
                 WHERE u.id = :user_id AND u.status = 'active'
             ");
             $this->db->bind(':user_id', $userId);
@@ -72,8 +72,8 @@ class Permission {
             // Get user-specific permissions (overrides)
             $this->db->query("
                 SELECT p.permission_key, up.granted
-                FROM user_permissions up
-                INNER JOIN permissions p ON up.permission_id = p.id
+                FROM user_permissions_cokhi up
+                INNER JOIN permissions_cokhi p ON up.permission_id = p.id
                 WHERE up.user_id = :user_id 
                 AND (up.expires_at IS NULL OR up.expires_at > NOW())
             ");
@@ -133,7 +133,7 @@ class Permission {
     public function grantPermission($userId, $permissionKey, $grantedBy, $expiresAt = null) {
         try {
             // Get permission ID
-            $this->db->query("SELECT id FROM permissions WHERE permission_key = :key");
+            $this->db->query("SELECT id FROM permissions_cokhi WHERE permission_key = :key");
             $this->db->bind(':key', $permissionKey);
             $permission = $this->db->fetch();
             
@@ -145,7 +145,7 @@ class Permission {
             
             // Check if permission already exists
             $this->db->query("
-                SELECT id FROM user_permissions 
+                SELECT id FROM user_permissions_cokhi 
                 WHERE user_id = :user_id AND permission_id = :permission_id
             ");
             $this->db->bind(':user_id', $userId);
@@ -154,14 +154,14 @@ class Permission {
             
             if ($existing) {
                 // Update existing
-                $result = $this->db->update('user_permissions', [
+                $result = $this->db->update('user_permissions_cokhi', [
                     'granted' => 1,
                     'granted_by' => $grantedBy,
                     'expires_at' => $expiresAt
                 ], ['id' => $existing['id']]);
             } else {
                 // Insert new
-                $result = $this->db->insert('user_permissions', [
+                $result = $this->db->insert('user_permissions_cokhi', [
                     'user_id' => $userId,
                     'permission_id' => $permissionId,
                     'granted' => 1,
@@ -195,7 +195,7 @@ class Permission {
     public function revokePermission($userId, $permissionKey, $revokedBy) {
         try {
             // Get permission ID
-            $this->db->query("SELECT id FROM permissions WHERE permission_key = :key");
+            $this->db->query("SELECT id FROM permissions_cokhi WHERE permission_key = :key");
             $this->db->bind(':key', $permissionKey);
             $permission = $this->db->fetch();
             
@@ -207,7 +207,7 @@ class Permission {
             
             // Check if permission exists
             $this->db->query("
-                SELECT id FROM user_permissions 
+                SELECT id FROM user_permissions_cokhi 
                 WHERE user_id = :user_id AND permission_id = :permission_id
             ");
             $this->db->bind(':user_id', $userId);
@@ -216,13 +216,13 @@ class Permission {
             
             if ($existing) {
                 // Update to revoked
-                $result = $this->db->update('user_permissions', [
+                $result = $this->db->update('user_permissions_cokhi', [
                     'granted' => 0,
                     'granted_by' => $revokedBy
                 ], ['id' => $existing['id']]);
             } else {
                 // Insert as revoked (to override role permission)
-                $result = $this->db->insert('user_permissions', [
+                $result = $this->db->insert('user_permissions_cokhi', [
                     'user_id' => $userId,
                     'permission_id' => $permissionId,
                     'granted' => 0,
@@ -255,7 +255,7 @@ class Permission {
     public function getAllPermissions() {
         try {
             $this->db->query("
-                SELECT * FROM permissions 
+                SELECT * FROM permissions_cokhi 
                 ORDER BY category, permission_name
             ");
             return $this->db->fetchAll();
@@ -297,8 +297,8 @@ class Permission {
         try {
             $this->db->query("
                 SELECT p.*
-                FROM permissions p
-                INNER JOIN role_permissions rp ON p.id = rp.permission_id
+                FROM permissions_cokhi p
+                INNER JOIN role_permissions_cokhi rp ON p.id = rp.permission_id
                 WHERE rp.role_id = :role_id
                 ORDER BY p.category, p.permission_name
             ");
@@ -318,7 +318,7 @@ class Permission {
         try {
             // Check if already assigned
             $this->db->query("
-                SELECT id FROM role_permissions 
+                SELECT id FROM role_permissions_cokhi 
                 WHERE role_id = :role_id AND permission_id = :permission_id
             ");
             $this->db->bind(':role_id', $roleId);
@@ -328,7 +328,7 @@ class Permission {
                 return ['success' => false, 'message' => 'Permission already assigned to role'];
             }
             
-            $result = $this->db->insert('role_permissions', [
+            $result = $this->db->insert('role_permissions_cokhi', [
                 'role_id' => $roleId,
                 'permission_id' => $permissionId
             ]);
@@ -350,7 +350,7 @@ class Permission {
      */
     public function removePermissionFromRole($roleId, $permissionId) {
         try {
-            $result = $this->db->delete('role_permissions', [
+            $result = $this->db->delete('role_permissions_cokhi', [
                 'role_id' => $roleId,
                 'permission_id' => $permissionId
             ]);
@@ -374,8 +374,8 @@ class Permission {
         try {
             $this->db->query("
                 SELECT r.is_admin
-                FROM users u
-                INNER JOIN roles r ON u.role_id = r.id
+                FROM users_cokhi u
+                INNER JOIN roles_cokhi r ON u.role_id = r.id
                 WHERE u.id = :user_id
             ");
             $this->db->bind(':user_id', $userId);
@@ -394,7 +394,7 @@ class Permission {
      */
     private function logActivity($userId, $action, $entityType, $entityId, $description) {
         try {
-            $this->db->insert('activity_logs', [
+            $this->db->insert('activity_logs_cokhi', [
                 'user_id' => $userId,
                 'action' => $action,
                 'entity_type' => $entityType,

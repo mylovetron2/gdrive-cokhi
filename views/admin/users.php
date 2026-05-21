@@ -19,15 +19,15 @@ $db = Database::getInstance();
 // Get all users with roles
 $db->query("
     SELECT u.*, r.role_name, r.is_admin,
-           (SELECT COUNT(*) FROM files WHERE uploaded_by = u.id) as file_count
-    FROM users u
-    LEFT JOIN roles r ON u.role_id = r.id
+           (SELECT COUNT(*) FROM files_cokhi WHERE uploaded_by = u.id) as file_count
+    FROM users_cokhi u
+    LEFT JOIN roles_cokhi r ON u.role_id = r.id
     ORDER BY u.created_at DESC
 ");
 $users = $db->fetchAll();
 
 // Get all roles for dropdown
-$db->query("SELECT * FROM roles ORDER BY role_name");
+$db->query("SELECT * FROM roles_cokhi ORDER BY role_name");
 $roles = $db->fetchAll();
 
 $title = 'Quản lý người dùng';
